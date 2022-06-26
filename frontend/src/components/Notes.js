@@ -1,36 +1,46 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Noteitem } from "./Noteitem";
 import NoteContext from "../context/notes/noteContext";
 import { Addnote } from "./Addnote";
 
-export const Notes = () => {
+export const Notes = (props) => {
+  const history = useNavigate()
   const context = useContext(NoteContext);
   const { notes, getnotes, editnote } = context;
 
   const [note,setNotes] = useState({id:"",etitle:"",edescription:"",etag:""})
   useEffect(() => {
-    getnotes();
+    if(localStorage.getItem("token")){
+      getnotes();
+    }
+    else{
+      history("/login")
+    }
     // eslint-disable-next-line 
   }, []);
 
   const updatenotes = (current_note) => {
     ref.current.click();
-    setNotes({id:current_note.title,etitle:current_note.title,edescription:current_note.description,etag:current_note.tag})
+    setNotes({id:current_note._id,etitle:current_note.title,edescription:current_note.description,etag:current_note.tag})
   };
 
   const handleClick = (e) => {
-    e.preventDefault()
+    console.log(note)
+    ref2.current.click()
     editnote(note.id,note.etitle,note.edescription,note.etag)
+    props.showAlert("Note Updated Successfully","success")
   };
   const onChange = (e) => {
     setNotes({...note,[e.target.name]:e.target.value})
   };
 
   const ref = useRef(null);
+  const ref2 = useRef(null);
 
   return (
     <>
-      <Addnote />
+      <Addnote showAlert={props.showAlert}/>
 
           {/*its refernce is used by the edit buttons on the notes and its display = none */}
       <button
@@ -80,8 +90,8 @@ export const Notes = () => {
                   <input
                     type="text"
                     className="form-control"
-                    id="edesc"
-                    name="edesc"
+                    id="edescription"
+                    name="edescription"
                     value={note.edescription}
                     onChange={onChange}
                   />
@@ -104,6 +114,7 @@ export const Notes = () => {
             <div className="modal-footer">
               <button
                 type="button"
+                ref={ref2}
                 className="btn btn-secondary"
                 data-bs-dismiss="modal"
               >
@@ -119,11 +130,15 @@ export const Notes = () => {
 
       <div className="row my-3">
         <h1>Your Notes</h1>
+        <div className="container row mx-2">
+
+        {notes.length===0 && "No Notes to Display"}
         {notes.map((note) => {
           return (
-            <Noteitem key={note._id} updateNotes={updatenotes} note={note} />
-          );
-        })}
+            <Noteitem key={note._id} updateNotes={updatenotes} showAlert={props.showAlert} note={note} />
+            );
+          })}
+          </div>
       </div>
     </>
   );

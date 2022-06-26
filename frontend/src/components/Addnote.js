@@ -1,7 +1,7 @@
 import React , {useContext,useState}from 'react'
 import NoteContext from "../context/notes/noteContext";
 
-export const Addnote = () => {
+export const Addnote = (props) => {
     const context = useContext(NoteContext)
     const {addnote} = context;
 
@@ -10,6 +10,8 @@ export const Addnote = () => {
     const handleClick = (e) =>{
         e.preventDefault();
         addnote(note.title,note.desc,note.tag)
+        setNote({title:"",desc:"",tag:""})
+        props.showAlert("Note Added Successfully","success")
     }
     const onChange = (e) =>{
         setNote({...note,[e.target.name]:e.target.value})
@@ -27,6 +29,8 @@ export const Addnote = () => {
           className="form-control"
           id="title"
           name="title"
+          minLength={3}
+          value={note.title}
           onChange={onChange}
           aria-describedby="emailHelp"
         />
@@ -40,6 +44,8 @@ export const Addnote = () => {
           className="form-control"
           id="desc"
           name="desc"
+          value={note.desc}
+          minLength={5}
           onChange={onChange}
         />
       </div>
@@ -52,10 +58,11 @@ export const Addnote = () => {
           className="form-control"
           id="tag"
           name="tag"
+          value={note.tag}
           onChange={onChange}
         />
       </div>
-      <button type="submit" onClick={handleClick} className="btn btn-primary">
+      <button disabled={(note.title.length<=3 || note.desc.length<=5)?true:false} type="submit" onClick={handleClick} className="btn btn-primary">
         Add Note
       </button>
     </form>
